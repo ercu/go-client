@@ -42,10 +42,23 @@ func multipartForm(endpoint string, params url.Values, fileParams []string) (*ht
 				}
 			}
 		} else {
-			err := writer.WriteField(name, params.Get(name))
-			if err != nil {
-				return nil, err
+			if len(params[name]) > 1 {
+				innerParams := params[name]
+				for i := range innerParams {
+					fieldName := fmt.Sprintf("%s.%d", name, i)
+
+					err := writer.WriteField(fieldName, innerParams[i])
+					if err != nil {
+						return nil, err
+					}
+				}
+			} else {
+				err := writer.WriteField(name, params.Get(name))
+				if err != nil {
+					return nil, err
+				}
 			}
+
 		}
 	}
 
@@ -55,6 +68,7 @@ func multipartForm(endpoint string, params url.Values, fileParams []string) (*ht
 	}
 
 	req, err := http.NewRequest(http.MethodPost, endpoint, body)
+	fmt.Printf("request body to send:%s", string(body.Bytes()[:]))
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	return req, err
 }
