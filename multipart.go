@@ -68,7 +68,6 @@ func multipartForm(endpoint string, params url.Values, fileParams []string) (*ht
 	}
 
 	req, err := http.NewRequest(http.MethodPost, endpoint, body)
-	fmt.Printf("request body to send:%s", string(body.Bytes()[:]))
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	return req, err
 }
